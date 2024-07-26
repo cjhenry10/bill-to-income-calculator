@@ -5,6 +5,7 @@ import { Switch } from './ui/switch';
 import { Label } from './ui/label';
 import { Tooltip, TooltipProvider } from '@radix-ui/react-tooltip';
 import { TooltipContent, TooltipTrigger } from './ui/tooltip';
+import { on } from 'events';
 
 function IncomeRow({
   name,
@@ -13,48 +14,61 @@ function IncomeRow({
   id,
   preTax,
   onAmountUpdate,
+  onNameChange,
+  onPreTaxChange,
+  onMonthlyChange,
+  onYearlyChange,
 }: {
   name: string;
   amountYear: number;
   amountMonth: number;
   id: number;
   preTax: boolean;
-  onAmountUpdate: (
+  onAmountUpdate?: (
     name: string,
     amountYear: number,
     amountMonth: number,
     id: number,
     preTax: boolean
   ) => void;
+  onNameChange: (name: string, id: number) => void;
+  onPreTaxChange: (preTax: boolean, id: number) => void;
+  onMonthlyChange: (amount: number, id: number) => void;
+  onYearlyChange: (amount: number, id: number) => void;
 }) {
-  const [payerName, setPayerName] = useState(name);
-  const [payerYearlySalary, setPayerYearlySalary] = useState(amountYear);
-  const [payerMonthSalary, setPayerMonthlySalary] = useState(amountMonth);
-  const [payerPreTax, setPayerPretax] = useState(preTax);
+  // const [payerName, setPayerName] = useState(name);
+  // const [payerYearlySalary, setPayerYearlySalary] = useState(amountYear);
+  // const [payerMonthSalary, setPayerMonthlySalary] = useState(amountMonth);
+  // const [payerPreTax, setPayerPretax] = useState(preTax);
 
-  useEffect(() => {
-    onAmountUpdate(
-      payerName,
-      payerYearlySalary,
-      payerMonthSalary,
-      id,
-      payerPreTax
-    );
-  }, [payerName, payerYearlySalary, payerMonthSalary, payerPreTax]);
+  // if (name !== payerName) setPayerName(name);
+  // if (amountYear !== payerYearlySalary) setPayerYearlySalary(amountYear);
+  // if (amountMonth !== payerMonthSalary) setPayerMonthlySalary(amountMonth);
+  // if (preTax !== payerPreTax) setPayerPretax(preTax);
 
-  function handleNumberChange(event: React.ChangeEvent<HTMLInputElement>) {
-    if (event.target.name === 'yearly') {
-      setPayerYearlySalary(Number(event.target.value));
-      setPayerMonthlySalary(
-        Number((Number(event.target.value) / 12).toFixed(2))
-      );
-    } else {
-      setPayerMonthlySalary(Number(event.target.value));
-      setPayerYearlySalary(
-        Number((Number(event.target.value) * 12).toFixed(2))
-      );
-    }
-  }
+  // useEffect(() => {
+  //   onAmountUpdate(
+  //     payerName,
+  //     payerYearlySalary,
+  //     payerMonthSalary,
+  //     id,
+  //     payerPreTax
+  //   );
+  // }, [payerName, payerYearlySalary, payerMonthSalary, payerPreTax]);
+
+  // function handleNumberChange(event: React.ChangeEvent<HTMLInputElement>) {
+  //   if (event.target.name === 'yearly') {
+  //     setPayerYearlySalary(Number(event.target.value));
+  //     setPayerMonthlySalary(
+  //       Number((Number(event.target.value) / 12).toFixed(2))
+  //     );
+  //   } else {
+  //     setPayerMonthlySalary(Number(event.target.value));
+  //     setPayerYearlySalary(
+  //       Number((Number(event.target.value) * 12).toFixed(2))
+  //     );
+  //   }
+  // }
 
   return (
     <>
@@ -63,9 +77,9 @@ function IncomeRow({
           name='payer-name'
           type='text'
           className='w-8/12'
-          value={payerName}
+          value={name}
           onChange={(e) => {
-            setPayerName(e.target.value);
+            onNameChange(e.target.value, id);
           }}
         />
         <div className='flex items-center space-x-2 ms-auto'>
@@ -75,8 +89,10 @@ function IncomeRow({
                 <div className='flex items-center space-x-2 ms-auto'>
                   <Switch
                     id={`pre-tax-${id}`}
-                    checked={payerPreTax}
-                    onCheckedChange={setPayerPretax}
+                    checked={preTax}
+                    onCheckedChange={(e) => {
+                      onPreTaxChange(e, id);
+                    }}
                   />
                   <Label htmlFor={`pre-tax-${id}`}>Pre-tax</Label>
                 </div>
@@ -95,8 +111,10 @@ function IncomeRow({
           // dir='rtl'
           className='text-end'
           type='number'
-          value={payerYearlySalary}
-          onChange={handleNumberChange}
+          value={amountYear}
+          onChange={(e) => {
+            onYearlyChange(Number(e.target.value), id);
+          }}
         />
       </TableCell>
       <TableCell className='text-right'>
@@ -106,8 +124,10 @@ function IncomeRow({
           // dir='rtl'
           className='text-end'
           type='number'
-          value={payerMonthSalary}
-          onChange={handleNumberChange}
+          value={amountMonth}
+          onChange={(e) => {
+            onMonthlyChange(Number(e.target.value), id);
+          }}
         />
       </TableCell>
     </>

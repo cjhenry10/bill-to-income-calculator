@@ -1,46 +1,38 @@
-import { useEffect, useState } from 'react';
 import { Input } from './ui/input';
 import { TableCell } from './ui/table';
 
 function Expense({
   name,
   amount,
-  onExpenseUpdate,
   id,
+  onNameChange,
+  onAmountChange,
 }: {
   name: string;
   amount: number;
-  onExpenseUpdate: (name: string, amount: number, id: number) => void;
   id: number;
+  onNameChange: (name: string, id: number) => void;
+  onAmountChange: (amount: number, id: number) => void;
 }) {
-  const [expenseName, setExpenseName] = useState(name);
-  const [expenseAmount, setExpenseAmount] = useState(amount);
-  // const [expenseId, setExpenseId] = useState(id);
-
-  useEffect(() => {
-    onExpenseUpdate(expenseName, expenseAmount, id);
-  }, [expenseName, expenseAmount, id]);
-
-  function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
-    if (event.target.type === 'text') {
-      setExpenseName(event.target.value);
-    } else {
-      setExpenseAmount(Number(event.target.value));
-    }
-  }
-
   return (
     <>
       <TableCell className='font-medium'>
-        <Input type='text' value={expenseName} onChange={handleChange} />
+        <Input
+          type='text'
+          value={name}
+          onChange={(e) => {
+            onNameChange(e.target.value, id);
+          }}
+        />
       </TableCell>
       <TableCell className='text-right'>
         <Input
-          dir='rtl'
           className='text-right'
           type='number'
-          value={expenseAmount}
-          onChange={handleChange}
+          value={amount}
+          onChange={(e) => {
+            onAmountChange(Number(e.target.value), id);
+          }}
         />
       </TableCell>
     </>

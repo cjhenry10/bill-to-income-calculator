@@ -9,7 +9,9 @@ import {
   TableHeader,
   TableRow,
 } from './ui/table';
-import { Info } from 'lucide-react';
+import { Gem, Info, TriangleAlert } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from './ui/alert';
+import messages from '@/lib/messages';
 
 function BillSplitterResultTable({
   contributionResult,
@@ -22,8 +24,32 @@ function BillSplitterResultTable({
   };
 }) {
   if (contributionResult.err !== '') {
-    return <p>{contributionResult.err}</p>;
+    let message = contributionResult.err;
+    if (message.startsWith('Me is')) {
+      message = message.replace('Me is', 'I am');
+    } else if (
+      contributionResult.err === messages.incomeLow ||
+      contributionResult.err === messages.noPayers
+    ) {
+      return (
+        <Alert variant='destructive'>
+          <TriangleAlert size={18} />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>{contributionResult.err}</AlertDescription>
+        </Alert>
+      );
+    } else if (contributionResult.err === messages.noData) {
+      return <p>{contributionResult.err}</p>;
+    }
+    return (
+      <Alert variant='default' className='text-foreground/75'>
+        <Gem size={18} />
+        <AlertTitle>Single payer</AlertTitle>
+        <AlertDescription>{message}</AlertDescription>
+      </Alert>
+    );
   }
+
   return (
     <Table>
       {contributionResult.err === '' && (
@@ -36,8 +62,7 @@ function BillSplitterResultTable({
             left over per month.
           </p>
           <p className='text-xs mt-2'>
-            <Info size={14} className='inline-block' /> These values may be
-            slightly off due to rounding.
+            <Info size={14} className='inline-block' /> {messages.roundingError}
           </p>
         </TableCaption>
       )}

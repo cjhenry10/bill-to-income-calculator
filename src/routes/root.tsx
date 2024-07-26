@@ -32,7 +32,7 @@ function Root() {
       <NavigationMenu
         value={value}
         onValueChange={setValue}
-        className='p-2 border-[1px] rounded mx-auto px-8 justify-center [&>div:first-child]:w-full mb-2 max-w-[1200px]'
+        className='p-2 border-[1px] rounded mx-auto px-8 justify-center [&>div:first-child]:w-full xl:max-w-[1200px] max-w-[85%] sticky top-0 left-0 right-0 bg-background z-50'
       >
         <NavigationMenuList className='gap-4'>
           {screenWidth > 768 ? (
@@ -87,7 +87,8 @@ function Root() {
           </li>
         </NavigationMenuList>
       </NavigationMenu>
-      <main className='p-1'>
+      {/* <div className='h-[58px]'></div> */}
+      <main className='max-w-[1200px] mx-auto'>
         <Outlet />
       </main>
     </>

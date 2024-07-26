@@ -18,10 +18,16 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from './ui/tooltip';
-import { calculatePostTaxIncome, formatCurrency } from '@/lib/utils';
+import {
+  calculatePostTaxIncome,
+  formatCurrency,
+  calculateSharedPayments,
+} from '@/lib/utils';
 import { Input } from './ui/input';
 import StateSelector from './StateSelector';
 import BillSplitterResultTable from './BillSplitterResultTable';
+import messages from '@/lib/messages';
+import { stat } from 'fs';
 
 interface Payer {
   name: string;
@@ -60,7 +66,6 @@ const defaultState = 'PA';
 const defaultExpenses = 4000;
 
 function BillSplitter() {
-  console.log('bill splitter render');
   const [payers, setPayers] = useState(defaultPayers);
   const [sharedMonthlyExpenses, setSharedMonthlyExpenses] =
     useState(defaultExpenses);
@@ -69,175 +74,151 @@ function BillSplitter() {
     payers: [],
     contributions: [],
     leftover: 0,
-    err: 'No expense payers added.',
+    err: messages.noPayers,
   });
 
   useEffect(() => {
-    setContributionResult(calculatePayments(payers));
+    setContributionResult(
+      calculateSharedPayments(payers, state, sharedMonthlyExpenses)
+    );
   }, [payers, sharedMonthlyExpenses, state]);
 
   function handleStateUpdate(state: string) {
     setState(state);
   }
 
-  function handleAmountUpdate(
-    name: string,
-    amountYear: number,
-    amountMonth: number,
-    id: number,
-    preTax: boolean
-  ) {
+  // function handleAmountUpdate(
+  //   name: string,
+  //   amountYear: number,
+  //   amountMonth: number,
+  //   id: number,
+  //   preTax: boolean
+  // ) {
+  //   setPayers((prevPayers) => {
+  //     const newPayers = prevPayers.map((payer) => {
+  //       if (payer.id === id) {
+  //         return { name, amountYear, amountMonth, id, preTax };
+  //       }
+  //       return payer;
+  //     });
+  //     setContributionResult(
+  //       calculateSharedPayments(newPayers, state, sharedMonthlyExpenses)
+  //     );
+  //     return newPayers;
+  //   });
+  // }
+
+  function handleNameChange(name: string, id: number) {
     setPayers((prevPayers) => {
       const newPayers = prevPayers.map((payer) => {
         if (payer.id === id) {
-          return { name, amountYear, amountMonth, id, preTax };
+          return { ...payer, name };
         }
         return payer;
       });
-      setContributionResult(calculatePayments(newPayers));
+      setContributionResult(
+        calculateSharedPayments(newPayers, state, sharedMonthlyExpenses)
+      );
       return newPayers;
     });
   }
 
-  function calculatePayments(payers: any) {
-    console.log('calculatePayments');
-    if (payers.length === 0) {
-      return {
-        payers: [],
-        contributions: [],
-        leftover: 0,
-        err: 'No expense payers added.',
-      };
-    }
-    const payersAfterTaxes = payers.map((payer: any) => {
-      if (payer.preTax) {
-        return {
-          name: payer.name,
-          amountYear: calculatePostTaxIncome(payer.amountYear, state),
-          amountMonth: calculatePostTaxIncome(payer.amountYear, state) / 12,
-          id: payer.id,
-          preTax: payer.preTax,
-        };
-      }
-      return payer;
-    });
-
-    const afterTaxMonthlyEarnings = payersAfterTaxes.map(
-      (payer: Payer) => payer.amountMonth
-    );
-
-    // calculate total income
-    const totalIncome = payersAfterTaxes.reduce(
-      (acc: number, payer: any) => acc + payer.amountMonth,
-      0
-    );
-
-    if (totalIncome < sharedMonthlyExpenses) {
-      return {
-        payers: [],
-        contributions: [],
-        leftover: 0,
-        err: 'Not enough income to cover expenses.',
-      };
-    }
-
-    // find id of highest earner
-    let highestEarner: Payer | null = null;
-    payersAfterTaxes.forEach((payer: any) => {
-      if (
-        payer.amountYear ===
-        Math.max(...payersAfterTaxes.map((payer: any) => payer.amountYear))
-      ) {
-        highestEarner = payer;
-      }
-    });
-
-    // get amount left after highest earner pays all shared expenses. may be negative
-    let highestEarnerLeft = highestEarner!.amountMonth - sharedMonthlyExpenses;
-
-    // get amount everyone has leftover after highest earner pays all shared expenses
-    let leftoverArray = payersAfterTaxes.map((payer: Payer) => {
-      if (payer.id === highestEarner!.id) {
-        return highestEarnerLeft;
-      } else {
-        return payer.amountMonth;
-      }
-    });
-
-    // target leftover value is the average of the leftover array
-    let equalLeftoverValue = Math.round(
-      leftoverArray.reduce((acc: number, val: number) => acc + val, 0) /
-        leftoverArray.length
-    );
-
-    // handle case where lowest earner does not earn the equal leftover value
-    // so remove them from the calculation and recalculate the average
-    const lowestEarnerLeft = Math.min(...afterTaxMonthlyEarnings);
-    if (equalLeftoverValue > lowestEarnerLeft) {
-      const tempArray = leftoverArray.filter(
-        (val: number) => val !== lowestEarnerLeft
-      );
-      equalLeftoverValue = Math.round(
-        tempArray.reduce((acc: number, val: number) => acc + val, 0) /
-          tempArray.length
-      );
-    }
-
-    // if highest earner can cover all expenses, and they have more leftover than the others earn, highest earner covers all expenses
-    if (highestEarnerLeft === Math.max(...leftoverArray)) {
-      console.log('Highest earner can cover all expenses');
-      console.log({
-        contributions: leftoverArray,
-        leftover: highestEarnerLeft,
+  function handleYearlyChange(amountYear: number, id: number) {
+    setPayers((prevPayers) => {
+      const newPayers = prevPayers.map((payer) => {
+        if (payer.id === id) {
+          return {
+            ...payer,
+            amountYear,
+            amountMonth: Number((amountYear / 12).toFixed(2)),
+          };
+        }
+        return payer;
       });
-      return {
-        payers: payersAfterTaxes,
-        contributions: leftoverArray,
-        leftover: highestEarnerLeft,
-        err: `${
-          highestEarner!.name
-        } is the highest earner and can cover all expenses with ${formatCurrency(
-          highestEarnerLeft
-        )} leftover per month.`,
-      };
-    }
-
-    const payerContributions = payersAfterTaxes.map((payer: Payer) => {
-      if (payer.amountMonth > equalLeftoverValue) {
-        return Math.round(payer.amountMonth - equalLeftoverValue);
-      } else {
-        return 0;
-      }
+      setContributionResult(
+        calculateSharedPayments(newPayers, state, sharedMonthlyExpenses)
+      );
+      return newPayers;
     });
+  }
 
-    return {
-      payers: payersAfterTaxes,
-      contributions: payerContributions,
-      leftover: equalLeftoverValue,
-      err: '',
-    };
+  function handleMonthlyChange(amountMonth: number, id: number) {
+    setPayers((prevPayers) => {
+      const newPayers = prevPayers.map((payer) => {
+        if (payer.id === id) {
+          return { ...payer, amountMonth, amountYear: amountMonth * 12 };
+        }
+        return payer;
+      });
+      setContributionResult(
+        calculateSharedPayments(newPayers, state, sharedMonthlyExpenses)
+      );
+      return newPayers;
+    });
+  }
+
+  function handlePreTaxChange(preTax: boolean, id: number) {
+    setPayers((prevPayers) => {
+      const newPayers = prevPayers.map((payer) => {
+        if (payer.id === id) {
+          return { ...payer, preTax };
+        }
+        return payer;
+      });
+      setContributionResult(
+        calculateSharedPayments(newPayers, state, sharedMonthlyExpenses)
+      );
+      return newPayers;
+    });
   }
 
   return (
     <div className='grid grid-cols-12 gap-4 max-w-[1200px] mx-auto'>
-      <div className='flex flex-wrap items-start col-span-6'>
-        <label htmlFor='shared-expenses' className='mr-2 my-auto'>
-          Shared monthly expenses:
-        </label>
-        <Input
-          name='shared-expenses'
-          className='text-end w-1/4'
-          value={sharedMonthlyExpenses}
-          onChange={(e) => {
-            setSharedMonthlyExpenses(Number(e.target.value));
-          }}
-        />
-      </div>
-      <div className='col-span-6 flex flex-wrap ms-auto'>
-        <h3 className='my-auto mr-2'>State: </h3>
-        <StateSelector defaultState={state} onStateUpdate={handleStateUpdate} />
-      </div>
       <div className='col-span-12 md:col-span-12 border-[1px] rounded p-4'>
+        <div className='col-span-12 flex flex-wrap'>
+          <div className='flex flex-wrap items-start'>
+            <label htmlFor='shared-expenses' className='mr-2 my-auto'>
+              Shared monthly expenses:
+            </label>
+            <Input
+              name='shared-expenses'
+              id='shared-expenses'
+              className='text-end w-1/4'
+              value={sharedMonthlyExpenses}
+              onChange={(e) => {
+                setSharedMonthlyExpenses(Number(e.target.value));
+              }}
+            />
+          </div>
+          <div className='flex flex-wrap md:me-auto sm:mt-0 mt-2'>
+            <h3 className='my-auto mr-2'>State: </h3>
+            <StateSelector
+              defaultState={state}
+              onStateUpdate={handleStateUpdate}
+            />
+          </div>
+          <div className='ms-auto'>
+            <Button
+              variant={'default'}
+              className='bg-primary/70'
+              onClick={() =>
+                setPayers((prev) => {
+                  const newPayers = [...prev];
+                  newPayers.splice(newPayers.length, 0, {
+                    name: '',
+                    amountYear: 0,
+                    amountMonth: 0,
+                    id: prev.length || 0,
+                    preTax: false,
+                  });
+                  return newPayers;
+                })
+              }
+            >
+              Add Row
+            </Button>
+          </div>
+        </div>
         <Table>
           <TableHeader>
             <TableRow>
@@ -256,7 +237,11 @@ function BillSplitter() {
                   amountMonth={payer.amountMonth}
                   preTax={payer.preTax}
                   id={payer.id}
-                  onAmountUpdate={handleAmountUpdate}
+                  onNameChange={handleNameChange}
+                  onYearlyChange={handleYearlyChange}
+                  onMonthlyChange={handleMonthlyChange}
+                  onPreTaxChange={handlePreTaxChange}
+                  // onAmountUpdate={handleAmountUpdate}
                 />
                 <TableCell className='flex flex-row gap-3'>
                   <TooltipProvider>
@@ -330,6 +315,26 @@ function BillSplitter() {
             </TableRow>
           </TableFooter>
         </Table>
+        <Button
+          variant={'outline'}
+          onClick={() => {
+            setPayers([
+              {
+                name: '',
+                amountYear: 0,
+                amountMonth: 0,
+                id: 0,
+                preTax: false,
+              },
+            ]);
+            // handleAmountUpdate('', 0, 0, 0, false);
+            setSharedMonthlyExpenses(0);
+            setState('');
+            console.log('state in bill splitter', state);
+          }}
+        >
+          Reset
+        </Button>
       </div>
       <div className='col-span-12 md:col-span-7 md:col-start-3 border-[1px] rounded p-4 items-center'>
         <BillSplitterResultTable contributionResult={contributionResult} />
