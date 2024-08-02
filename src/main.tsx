@@ -7,6 +7,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Root from './routes/root.tsx';
 import { ThemeProvider } from './components/theme-provider.tsx';
 import BillSplitter from './components/BillSplitter.tsx';
+import CookiePolicy from './components/CookiePolicy.tsx';
 
 const router = createBrowserRouter([
   {
@@ -20,6 +21,10 @@ const router = createBrowserRouter([
       {
         path: 'expense-splitter',
         element: <BillSplitter />,
+      },
+      {
+        path: 'cookie-policy',
+        element: <CookiePolicy />,
       },
     ],
   },

@@ -88,6 +88,7 @@ function IncomeRow({
               <TooltipTrigger asChild>
                 <div className='flex items-center space-x-2 ms-auto'>
                   <Switch
+                    className='data-[state=checked]:bg-primary/70'
                     id={`pre-tax-${id}`}
                     checked={preTax}
                     onCheckedChange={(e) => {

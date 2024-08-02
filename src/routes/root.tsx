@@ -11,6 +11,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Link, Outlet } from 'react-router-dom';
 import { ModeToggle } from '@/components/mode-toggle';
+import CookieConsent from '@/components/CookieConsent';
+import Footer from '@/components/Footer';
 
 function Root() {
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
@@ -32,7 +34,7 @@ function Root() {
       <NavigationMenu
         value={value}
         onValueChange={setValue}
-        className='p-2 border-[1px] rounded mx-auto px-8 justify-center [&>div:first-child]:w-full xl:max-w-[1200px] max-w-[85%] sticky top-0 left-0 right-0 bg-background z-50'
+        className='p-2 border-[1px] rounded mx-auto px-8 justify-center [&>div:first-child]:w-full xl:max-w-[1200px] max-w-full sticky top-0 left-0 right-0 bg-card z-50 shadow-lg'
       >
         <NavigationMenuList className='gap-4'>
           {screenWidth > 768 ? (
@@ -88,9 +90,11 @@ function Root() {
         </NavigationMenuList>
       </NavigationMenu>
       {/* <div className='h-[58px]'></div> */}
-      <main className='max-w-[1200px] mx-auto'>
+      <CookieConsent />
+      <main className='max-w-[1200px] mx-auto px-4 md:px-2'>
         <Outlet />
       </main>
+      <Footer />
     </>
   );
 }

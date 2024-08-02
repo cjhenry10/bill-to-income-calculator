@@ -18,6 +18,20 @@ module.exports = {
     },
     extend: {
       colors: {
+        highland: {
+          50: '#f6f8f5',
+          100: '#e9f1e7',
+          200: '#d5e2d0',
+          300: '#b4c9ac',
+          400: '#8aa97f',
+          500: '#688a5c',
+          600: '#547049',
+          700: '#425a3b',
+          800: '#374932',
+          900: '#2f3c2b',
+          950: '#161f14',
+        },
+
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
@@ -76,5 +90,5 @@ module.exports = {
       sans: ['Mulish', 'sans-serif'],
     },
   },
-  plugins: [require('tailwindcss-animate')],
+  plugins: [require('tailwindcss-animate'), require('@tailwindcss/typography')],
 };

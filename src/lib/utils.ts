@@ -354,10 +354,17 @@ function calculateMarginalTax(
 }
 
 function calculateStateTax(income: number, state: string) {
-  if (stateRates[state] === undefined) {
-    //TODO: handle this case better than returning 0
-    return 0;
+  if (stateRatesMarginal[state] !== undefined) {
+    return calculateMarginalTax(
+      income,
+      stateStandardDeductions[state] || 0,
+      stateRatesMarginal[state].rates,
+      stateRatesMarginal[state].brackets
+    );
   } else if (stateRates[state] === 0) {
+    return 0;
+  } else if (stateRates[state] === undefined) {
+    //TODO: handle this case better than returning 0
     return 0;
   } else {
     let taxableIncome;

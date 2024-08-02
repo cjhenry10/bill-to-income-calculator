@@ -99,9 +99,9 @@ function ExpenseTable() {
     <>
       <div className='grid grid-cols-12 gap-4 max-w-[1200px] mx-auto'>
         <div className='col-span-12 flex flex-wrap h-full'>
-          <h1 className='text-3xl mr-4 mt-2'>Salary Estimator</h1>
+          <h1 className='text-3xl mr-4 mt-4'>Salary Estimator</h1>
         </div>
-        <div className='col-span-12 md:col-span-7 border-[1px] rounded p-4 h-full'>
+        <div className='bg-card col-span-12 md:col-span-7 border-[1px] rounded p-4 h-full shadow-xl'>
           <div className='flex flex-wrap justify-between'>
             <div className='flex flex-col mb-4'>
               <label className='my-auto ml-1 mb-1 text-sm text-foreground/75'>
@@ -141,14 +141,14 @@ function ExpenseTable() {
           </div>
           <ScrollArea className='h-[67vh] max-h-[67vh] overflow-auto'>
             <Table>
-              <TableHeader className='bg-background/75 dark:bg-muted/75 backdrop-blur-xl'>
+              <TableHeader className='bg-neutral-100/80 dark:bg-muted/75 backdrop-blur-xl'>
                 <TableRow>
                   <TableHead className='w-1/2'>Expense</TableHead>
                   <TableHead className='text-right w-1/4'>$</TableHead>
                   <TableHead className='text-center w-1/4'>Options</TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody className='overflow-y-auto max-h-[67vh] bg-white/80 dark:bg-background'>
+              <TableBody className='overflow-y-auto max-h-[67vh] bg-card dark:bg-card'>
                 {expenses.map((expense, index) => (
                   <TableRow key={expense.id}>
                     <Expense
@@ -189,7 +189,7 @@ function ExpenseTable() {
                           <TooltipTrigger asChild>
                             <Button
                               variant={'destructive'}
-                              className='bg-neutral-700'
+                              className='bg-neutral-500 dark:bg-neutral-700'
                               onClick={() => {
                                 setExpenses((prev) => {
                                   const newExpenses = [...prev];
@@ -210,7 +210,7 @@ function ExpenseTable() {
                   </TableRow>
                 ))}
               </TableBody>
-              <TableFooter className='sticky bottom-0 bg-background/75 dark:bg-muted/75 backdrop-blur-lg border-0 h-[54px]'>
+              <TableFooter className='sticky bottom-0 bg-neutral-100/80 dark:bg-muted/75 backdrop-blur-lg border-0 h-[54px]'>
                 <TableRow className='border-0'>
                   <TableCell className='font-bold'>Monthly Total</TableCell>
                   <TableCell className='text-right font-bold'>
@@ -240,7 +240,7 @@ function ExpenseTable() {
               Reset
             </Button>
             <Popover>
-              <PopoverTrigger>
+              <PopoverTrigger asChild>
                 <Button
                   size={'icon'}
                   variant={'outline'}
@@ -251,7 +251,7 @@ function ExpenseTable() {
               </PopoverTrigger>
               <PopoverContent className='m-1' side='top'>
                 <div className='bg-background border rounded p-4 flex flex-col gap-2'>
-                  <PopoverClose>
+                  <PopoverClose asChild>
                     <Button
                       variant={'outline'}
                       className='bg-neutral-300 dark:bg-accent/50 dark:hover:bg-accent rounded-l-none'
@@ -264,7 +264,7 @@ function ExpenseTable() {
                       Show Example
                     </Button>
                   </PopoverClose>
-                  <PopoverClose>
+                  <PopoverClose asChild>
                     <Button
                       variant={'outline'}
                       className='bg-neutral-300 dark:bg-accent/50 dark:hover:bg-accent rounded-l-none w-full'
@@ -330,33 +330,27 @@ function ExpenseTable() {
           </div>
         </div>
         <div className='col-span-12 md:col-span-5'>
-          <div className='md:mt-8 md:pt-8'>
+          <div className='md:mt-8 p-4 border-[1px] bg-card rounded shadow-xl'>
             <Table>
-              <TableBody>
+              <TableBody className='text-lg'>
                 <TableRow>
-                  <TableCell className='text-xl'>
-                    Monthly Expense Total
-                  </TableCell>
-                  <TableCell className='text-right text-xl'>
+                  <TableCell>Monthly Expense Total</TableCell>
+                  <TableCell className='text-right '>
                     {formatCurrency(total)}
                   </TableCell>
                 </TableRow>
                 <TableRow>
-                  <TableCell className='text-xl'>
-                    Yearly Expense Total
-                  </TableCell>
-                  <TableCell className='text-right text-xl'>
+                  <TableCell>Yearly Expense Total</TableCell>
+                  <TableCell className='text-right '>
                     {formatCurrency(total * 12)}
                   </TableCell>
                 </TableRow>
               </TableBody>
-              <TableFooter>
+              <TableFooter className='bg-muted/75 text-lg'>
                 <TableRow>
-                  <TableCell className='text-xl'>
-                    Estimated Salary Requirement
-                  </TableCell>
-                  <TableCell className='text-right font-bold text-xl'>
-                    <span className='font-bold text-primary'>
+                  <TableCell>Estimated Salary Requirement</TableCell>
+                  <TableCell className='text-right font-bold '>
+                    <span className='font-bold dark:text-highland-300 text-highland-600'>
                       {formatCurrency(salaryEstimate)}
                     </span>
                   </TableCell>

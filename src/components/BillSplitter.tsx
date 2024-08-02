@@ -28,6 +28,7 @@ import StateSelector from './StateSelector';
 import BillSplitterResultTable from './BillSplitterResultTable';
 import messages from '@/lib/messages';
 import { stat } from 'fs';
+import BillSplitterText from './BillSplitterText';
 
 interface Payer {
   name: string;
@@ -174,11 +175,14 @@ function BillSplitter() {
 
   return (
     <div className='grid grid-cols-12 gap-4 max-w-[1200px] mx-auto'>
-      <div className='col-span-12 md:col-span-12 border-[1px] rounded p-4'>
+      <div className='col-span-12 flex flex-wrap h-full'>
+        <h1 className='text-3xl mr-4 mt-4'>Expense Splitter</h1>
+      </div>
+      <div className='col-span-12 md:col-span-12 border-[1px] rounded p-4 bg-card shadow-xl'>
         <div className='col-span-12 flex flex-wrap'>
           <div className='flex flex-wrap items-start'>
             <label htmlFor='shared-expenses' className='mr-2 my-auto'>
-              Shared monthly expenses:
+              Shared monthly expenses ($) :
             </label>
             <Input
               name='shared-expenses'
@@ -197,29 +201,8 @@ function BillSplitter() {
               onStateUpdate={handleStateUpdate}
             />
           </div>
-          <div className='ms-auto'>
-            <Button
-              variant={'default'}
-              className='bg-primary/70'
-              onClick={() =>
-                setPayers((prev) => {
-                  const newPayers = [...prev];
-                  newPayers.splice(newPayers.length, 0, {
-                    name: '',
-                    amountYear: 0,
-                    amountMonth: 0,
-                    id: prev.length || 0,
-                    preTax: false,
-                  });
-                  return newPayers;
-                })
-              }
-            >
-              Add Row
-            </Button>
-          </div>
         </div>
-        <Table>
+        <Table className='my-4'>
           <TableHeader>
             <TableRow>
               <TableHead className='w-4/12'>Name</TableHead>
@@ -315,29 +298,54 @@ function BillSplitter() {
             </TableRow>
           </TableFooter>
         </Table>
-        <Button
-          variant={'outline'}
-          onClick={() => {
-            setPayers([
-              {
-                name: '',
-                amountYear: 0,
-                amountMonth: 0,
-                id: 0,
-                preTax: false,
-              },
-            ]);
-            // handleAmountUpdate('', 0, 0, 0, false);
-            setSharedMonthlyExpenses(0);
-            setState('');
-            console.log('state in bill splitter', state);
-          }}
-        >
-          Reset
-        </Button>
+        <div className='flex justify-between'>
+          <Button
+            variant={'outline'}
+            onClick={() => {
+              setPayers([
+                {
+                  name: '',
+                  amountYear: 0,
+                  amountMonth: 0,
+                  id: 0,
+                  preTax: false,
+                },
+              ]);
+              // handleAmountUpdate('', 0, 0, 0, false);
+              setSharedMonthlyExpenses(0);
+              setState('');
+              console.log('state in bill splitter', state);
+            }}
+          >
+            Reset
+          </Button>
+
+          <Button
+            variant={'default'}
+            className='bg-primary/70'
+            onClick={() =>
+              setPayers((prev) => {
+                const newPayers = [...prev];
+                newPayers.splice(newPayers.length, 0, {
+                  name: '',
+                  amountYear: 0,
+                  amountMonth: 0,
+                  id: prev.length || 0,
+                  preTax: false,
+                });
+                return newPayers;
+              })
+            }
+          >
+            Add Row
+          </Button>
+        </div>
       </div>
-      <div className='col-span-12 md:col-span-7 md:col-start-3 border-[1px] rounded p-4 items-center'>
+      <div className='col-span-12 md:col-span-7 my-4 border-[1px] rounded p-4 items-center bg-card shadow-xl'>
         <BillSplitterResultTable contributionResult={contributionResult} />
+      </div>
+      <div className='col-span-12 md:col-span-7 my-4'>
+        <BillSplitterText />
       </div>
     </div>
   );

@@ -4,15 +4,23 @@ function App() {
   return (
     <>
       <ExpenseTable />
-      <p className='mx-auto'>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-        tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
-        veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
-        commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
-        velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint
-        occaecat cupidatat non proident, sunt in culpa qui officia deserunt
-        mollit anim id est laborum.
-      </p>
+      <div className='grid grid-cols-12 gap-4 my-8'>
+        <p className='col-span-12 md:col-span-7 leading-7'>
+          Enter your monthly expenses and the calculator will estimate your
+          minimum pre-tax salary requirement. The results should slightly
+          overestimate, but still be within 5% for salary estimates below
+          $200,000. For estimates above $200,000, the accuracy is within 10%.
+        </p>
+        <div className='col-span-12 md:col-span-5'></div>
+        {/* <p className='col-span-12 md:col-span-7 leading-8'>
+          The results are designed to overestimate, but still be within 4%
+          accuracy for anything below $100,000. For anything above $100,000, but
+          below $200,000, the accuracy is within 5%. Anything over $200,000 is
+          within 10%. This setup is to reduce while loop iterations while
+          calculating the estimated pre-tax salary.
+        </p>
+        <div className='col-span-12 md:col-span-5'></div> */}
+      </div>
     </>
   );
 }
