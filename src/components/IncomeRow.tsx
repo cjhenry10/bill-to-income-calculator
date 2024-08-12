@@ -1,11 +1,9 @@
-import { useEffect, useState } from 'react';
 import { Input } from './ui/input';
 import { TableCell } from './ui/table';
 import { Switch } from './ui/switch';
 import { Label } from './ui/label';
 import { Tooltip, TooltipProvider } from '@radix-ui/react-tooltip';
 import { TooltipContent, TooltipTrigger } from './ui/tooltip';
-import { on } from 'events';
 
 function IncomeRow({
   name,
@@ -36,53 +34,19 @@ function IncomeRow({
   onMonthlyChange: (amount: number, id: number) => void;
   onYearlyChange: (amount: number, id: number) => void;
 }) {
-  // const [payerName, setPayerName] = useState(name);
-  // const [payerYearlySalary, setPayerYearlySalary] = useState(amountYear);
-  // const [payerMonthSalary, setPayerMonthlySalary] = useState(amountMonth);
-  // const [payerPreTax, setPayerPretax] = useState(preTax);
-
-  // if (name !== payerName) setPayerName(name);
-  // if (amountYear !== payerYearlySalary) setPayerYearlySalary(amountYear);
-  // if (amountMonth !== payerMonthSalary) setPayerMonthlySalary(amountMonth);
-  // if (preTax !== payerPreTax) setPayerPretax(preTax);
-
-  // useEffect(() => {
-  //   onAmountUpdate(
-  //     payerName,
-  //     payerYearlySalary,
-  //     payerMonthSalary,
-  //     id,
-  //     payerPreTax
-  //   );
-  // }, [payerName, payerYearlySalary, payerMonthSalary, payerPreTax]);
-
-  // function handleNumberChange(event: React.ChangeEvent<HTMLInputElement>) {
-  //   if (event.target.name === 'yearly') {
-  //     setPayerYearlySalary(Number(event.target.value));
-  //     setPayerMonthlySalary(
-  //       Number((Number(event.target.value) / 12).toFixed(2))
-  //     );
-  //   } else {
-  //     setPayerMonthlySalary(Number(event.target.value));
-  //     setPayerYearlySalary(
-  //       Number((Number(event.target.value) * 12).toFixed(2))
-  //     );
-  //   }
-  // }
-
   return (
     <>
       <TableCell className='font-medium flex gap-2'>
         <Input
           name='payer-name'
           type='text'
-          className='w-8/12'
+          className='w-8/12 min-w-24'
           value={name}
           onChange={(e) => {
             onNameChange(e.target.value, id);
           }}
         />
-        <div className='flex items-center space-x-2 ms-auto'>
+        <div className='flex items-center space-x-2 ms-auto min-w-32'>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -105,7 +69,7 @@ function IncomeRow({
           </TooltipProvider>
         </div>
       </TableCell>
-      <TableCell className='text-right'>
+      <TableCell className='text-right min-w-28'>
         <Input
           step={'0.01'}
           name='yearly'
@@ -118,7 +82,7 @@ function IncomeRow({
           }}
         />
       </TableCell>
-      <TableCell className='text-right'>
+      <TableCell className='text-right min-w-28'>
         <Input
           step={'0.01'}
           name='monthly'

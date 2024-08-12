@@ -81,6 +81,9 @@ function ExpenseTable() {
 
   function handleAmountChange(amount: number, id: number) {
     setExpenses((prevExpenses) => {
+      if (amount > 9999999) {
+        amount = 9999999;
+      }
       const newExpenses = prevExpenses.map((expense) => {
         if (expense.id === id) {
           return { name: expense.name, amount, id };
@@ -163,7 +166,7 @@ function ExpenseTable() {
                           <TooltipTrigger asChild>
                             <Button
                               variant={'default'}
-                              className='bg-primary/70'
+                              className='bg-primary/70 p-2 h-1/2 my-auto sm:p-4 sm:h-auto'
                               onClick={() =>
                                 setExpenses((prev) => {
                                   const newExpenses = [...prev];
@@ -189,7 +192,7 @@ function ExpenseTable() {
                           <TooltipTrigger asChild>
                             <Button
                               variant={'destructive'}
-                              className='bg-neutral-500 dark:bg-neutral-700'
+                              className='bg-neutral-500 dark:bg-neutral-700 p-2 h-1/2 my-auto sm:p-4 sm:h-auto'
                               onClick={() => {
                                 setExpenses((prev) => {
                                   const newExpenses = [...prev];

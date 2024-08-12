@@ -13,6 +13,7 @@ import { Link, Outlet } from 'react-router-dom';
 import { ModeToggle } from '@/components/mode-toggle';
 import CookieConsent from '@/components/CookieConsent';
 import Footer from '@/components/Footer';
+import { Menu } from 'lucide-react';
 
 function Root() {
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
@@ -56,8 +57,8 @@ function Root() {
             </>
           ) : (
             <NavigationMenuItem>
-              <NavigationMenuTrigger className='border-[1px] border-neutral-800'>
-                Menu
+              <NavigationMenuTrigger className='border-[1px] text-neutral-600 dark:text-neutral-300'>
+                <Menu />
               </NavigationMenuTrigger>
               <NavigationMenuContent>
                 <NavigationMenuIndicator />

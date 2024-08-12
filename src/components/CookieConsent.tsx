@@ -6,8 +6,11 @@ import { Link } from 'react-router-dom';
 function CookieConsent() {
   const [accepted, setAccepted] = useLocalStorage('cookies-accepted', false);
   if (accepted) return null;
+
   return (
-    <Card className='z-50 border rounded bg-card fixed top-16 right-1/2 transform translate-x-1/2 mb-4 w-[57vw] min-w-[300px] p-4 shadow-xl'>
+    <Card
+      className={`z-50 border-2 border-primary/50 rounded bg-card fixed mb-4 w-[70vw] min-w-[300px] p-8 shadow-xl bottom-0 right-1/2 transform translate-x-1/2`}
+    >
       <CardTitle className='text-xl'>Cookie Policy</CardTitle>
       <CardDescription>
         We use local storage to save your form inputs so you can continue your

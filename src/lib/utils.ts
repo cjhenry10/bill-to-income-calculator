@@ -261,7 +261,6 @@ export function calculateYearlyIncomeNeededPretax(
       federalBrackets.rates,
       federalBrackets.brackets
     );
-    // console.log('federalTax', federalTax);
 
     let stateStandardDeduction = 0;
     let stateTax = 0;
@@ -278,11 +277,8 @@ export function calculateYearlyIncomeNeededPretax(
     } else {
       stateTax = calculateStateTax(taxableIncome, state)!;
     }
-    // console.log('stateTax', stateTax);
     const ficaTax = calculateFicaTax(taxableIncome);
-    // console.log('ficaTax', ficaTax);
     const localTax = calculateLocalTax(taxableIncome, localRate);
-    // console.log('localTax', localTax);
     const totalTax = federalTax + stateTax + ficaTax + localTax;
     calculatedPostTaxIncome = estimatedPreTaxIncome - totalTax;
   }
@@ -293,7 +289,9 @@ function calculateFederalTax(income: number) {
   let remainingIncome = Math.max(0, income - standardDeduction);
   let taxBracketIndex = 0;
   for (let i = 0; i < federalBrackets.brackets.length; i++) {
-    if (remainingIncome > federalBrackets.brackets[i]) {
+    if (i === federalBrackets.brackets.length - 1) {
+      taxBracketIndex = i;
+    } else if (remainingIncome > federalBrackets.brackets[i]) {
       taxBracketIndex = i + 1;
     } else {
       break;
@@ -389,11 +387,15 @@ function calculateLocalTax(income: number, localRate: number) {
   return income * localRate;
 }
 
-export function calculatePostTaxIncome(salary: number, state: string) {
+export function calculatePostTaxIncome(
+  salary: number,
+  state: string,
+  localRate: number
+) {
   const federalTax = calculateFederalTax(salary);
   const stateTax = calculateStateTax(salary, state)!;
   const ficaTax = calculateFicaTax(salary);
-  const localTax = calculateLocalTax(salary, defaultLocalRate);
+  const localTax = calculateLocalTax(salary, localRate / 100);
   return salary - federalTax - stateTax - ficaTax - localTax;
 }
 
@@ -407,7 +409,8 @@ export function formatCurrency(number: number) {
 export function calculateSharedPayments(
   payers: any,
   state: string,
-  sharedMonthlyExpenses: number
+  sharedMonthlyExpenses: number,
+  localRate: number
 ) {
   if (payers.length === 0) {
     return {
@@ -434,8 +437,9 @@ export function calculateSharedPayments(
     if (payer.preTax) {
       return {
         name: payer.name,
-        amountYear: calculatePostTaxIncome(payer.amountYear, state),
-        amountMonth: calculatePostTaxIncome(payer.amountYear, state) / 12,
+        amountYear: calculatePostTaxIncome(payer.amountYear, state, localRate),
+        amountMonth:
+          calculatePostTaxIncome(payer.amountYear, state, localRate) / 12,
         id: payer.id,
         preTax: payer.preTax,
       };
@@ -509,11 +513,6 @@ export function calculateSharedPayments(
     leftoverArray.length > 1 &&
     highestEarnerLeft === Math.max(...leftoverArray)
   ) {
-    console.log('Highest earner can cover all expenses');
-    console.log({
-      contributions: leftoverArray,
-      leftover: highestEarnerLeft,
-    });
     return {
       payers: payersAfterTaxes,
       contributions: leftoverArray,

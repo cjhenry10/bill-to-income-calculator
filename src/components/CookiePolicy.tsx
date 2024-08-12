@@ -1,6 +1,6 @@
 function CookiePolicy() {
   return (
-    <div className='prose prose-neutral dark:prose-invert my-8'>
+    <div className='prose prose-neutral dark:prose-invert mt-8 mb-48'>
       <h1>Cookie Policy</h1>
       <h3>Introduction</h3>
       <p>

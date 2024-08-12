@@ -22,13 +22,14 @@ import {
   calculatePostTaxIncome,
   formatCurrency,
   calculateSharedPayments,
+  round,
 } from '@/lib/utils';
 import { Input } from './ui/input';
 import StateSelector from './StateSelector';
 import BillSplitterResultTable from './BillSplitterResultTable';
 import messages from '@/lib/messages';
-import { stat } from 'fs';
 import BillSplitterText from './BillSplitterText';
+import useLocalStorage from '@/hooks/useLocalStorage';
 
 interface Payer {
   name: string;
@@ -48,8 +49,8 @@ const defaultPayers: Payer[] = [
   },
   {
     name: 'My Partner',
-    amountYear: 15000,
-    amountMonth: 1250,
+    amountYear: 48000,
+    amountMonth: 4000,
     id: 1,
     preTax: false,
   },
@@ -63,14 +64,20 @@ const defaultPayers: Payer[] = [
 ];
 
 const defaultState = 'PA';
-
+const defaultLocalRate = 1.0;
 const defaultExpenses = 4000;
 
 function BillSplitter() {
-  const [payers, setPayers] = useState(defaultPayers);
-  const [sharedMonthlyExpenses, setSharedMonthlyExpenses] =
-    useState(defaultExpenses);
-  const [state, setState] = useState(defaultState);
+  const [payers, setPayers] = useLocalStorage('bill-payers', defaultPayers);
+  const [sharedMonthlyExpenses, setSharedMonthlyExpenses] = useLocalStorage(
+    'shared-expenses',
+    defaultExpenses
+  );
+  const [state, setState] = useLocalStorage('shared-state', defaultState);
+  const [localRate, setLocalRate] = useLocalStorage(
+    'shared-local-rate',
+    defaultLocalRate
+  );
   const [contributionResult, setContributionResult] = useState({
     payers: [],
     contributions: [],
@@ -80,9 +87,9 @@ function BillSplitter() {
 
   useEffect(() => {
     setContributionResult(
-      calculateSharedPayments(payers, state, sharedMonthlyExpenses)
+      calculateSharedPayments(payers, state, sharedMonthlyExpenses, localRate)
     );
-  }, [payers, sharedMonthlyExpenses, state]);
+  }, [payers, sharedMonthlyExpenses, state, localRate]);
 
   function handleStateUpdate(state: string) {
     setState(state);
@@ -118,7 +125,12 @@ function BillSplitter() {
         return payer;
       });
       setContributionResult(
-        calculateSharedPayments(newPayers, state, sharedMonthlyExpenses)
+        calculateSharedPayments(
+          newPayers,
+          state,
+          sharedMonthlyExpenses,
+          localRate
+        )
       );
       return newPayers;
     });
@@ -126,6 +138,9 @@ function BillSplitter() {
 
   function handleYearlyChange(amountYear: number, id: number) {
     setPayers((prevPayers) => {
+      if (amountYear > 9999999) {
+        amountYear = 9999999;
+      }
       const newPayers = prevPayers.map((payer) => {
         if (payer.id === id) {
           return {
@@ -137,7 +152,12 @@ function BillSplitter() {
         return payer;
       });
       setContributionResult(
-        calculateSharedPayments(newPayers, state, sharedMonthlyExpenses)
+        calculateSharedPayments(
+          newPayers,
+          state,
+          sharedMonthlyExpenses,
+          localRate
+        )
       );
       return newPayers;
     });
@@ -145,6 +165,9 @@ function BillSplitter() {
 
   function handleMonthlyChange(amountMonth: number, id: number) {
     setPayers((prevPayers) => {
+      if (amountMonth > 833333.25) {
+        amountMonth = 833333.25;
+      }
       const newPayers = prevPayers.map((payer) => {
         if (payer.id === id) {
           return { ...payer, amountMonth, amountYear: amountMonth * 12 };
@@ -152,7 +175,12 @@ function BillSplitter() {
         return payer;
       });
       setContributionResult(
-        calculateSharedPayments(newPayers, state, sharedMonthlyExpenses)
+        calculateSharedPayments(
+          newPayers,
+          state,
+          sharedMonthlyExpenses,
+          localRate
+        )
       );
       return newPayers;
     });
@@ -167,7 +195,12 @@ function BillSplitter() {
         return payer;
       });
       setContributionResult(
-        calculateSharedPayments(newPayers, state, sharedMonthlyExpenses)
+        calculateSharedPayments(
+          newPayers,
+          state,
+          sharedMonthlyExpenses,
+          localRate
+        )
       );
       return newPayers;
     });
@@ -178,9 +211,9 @@ function BillSplitter() {
       <div className='col-span-12 flex flex-wrap h-full'>
         <h1 className='text-3xl mr-4 mt-4'>Expense Splitter</h1>
       </div>
-      <div className='col-span-12 md:col-span-12 border-[1px] rounded p-4 bg-card shadow-xl'>
+      <div className='col-span-12 md:col-span-12 border-[1px] rounded p-4 bg-card shadow-xl overflow-x-scroll'>
         <div className='col-span-12 flex flex-wrap'>
-          <div className='flex flex-wrap items-start'>
+          <div className='flex flex-wrap items-start m-1 min-w-80 text-sm text-foreground/75'>
             <label htmlFor='shared-expenses' className='mr-2 my-auto'>
               Shared monthly expenses ($) :
             </label>
@@ -190,19 +223,46 @@ function BillSplitter() {
               className='text-end w-1/4'
               value={sharedMonthlyExpenses}
               onChange={(e) => {
+                if (Number(e.target.value) > 50000) {
+                  setSharedMonthlyExpenses(50000);
+                }
                 setSharedMonthlyExpenses(Number(e.target.value));
               }}
             />
           </div>
-          <div className='flex flex-wrap md:me-auto sm:mt-0 mt-2'>
+          <div className='flex flex-wrap justify-between md:justify-normal md:me-auto m-1 min-w-80 text-sm text-foreground/75'>
             <h3 className='my-auto mr-2'>State: </h3>
             <StateSelector
               defaultState={state}
               onStateUpdate={handleStateUpdate}
             />
           </div>
+          <div className='flex flex-row justify-between md:justify-normal gap-4 m-1 min-w-80 text-sm text-foreground/75'>
+            <label className='my-auto w-40 '>Local Tax (%) : </label>
+            <Input
+              className='text-right min-w-32'
+              type='number'
+              step={0.01}
+              min={0}
+              max={25}
+              value={localRate}
+              onChange={(e) => {
+                if (e.target.value === '') {
+                  setLocalRate(0);
+                  return;
+                }
+                const num = Number(e.target.value);
+                const val = round(num, 2);
+                if (val > 25) {
+                  setLocalRate(25);
+                  return;
+                }
+                setLocalRate(val);
+              }}
+            />
+          </div>
         </div>
-        <Table className='my-4'>
+        <Table className='my-4 overflow-x-scroll'>
           <TableHeader>
             <TableRow>
               <TableHead className='w-4/12'>Name</TableHead>
@@ -232,7 +292,7 @@ function BillSplitter() {
                       <TooltipTrigger asChild>
                         <Button
                           variant={'default'}
-                          className='bg-primary/70'
+                          className='bg-primary/70 p-2 h-1/2 my-auto sm:p-4 sm:h-auto'
                           onClick={() =>
                             setPayers((prev) => {
                               const newPayers = [...prev];
@@ -260,7 +320,7 @@ function BillSplitter() {
                       <TooltipTrigger asChild>
                         <Button
                           variant={'destructive'}
-                          className='bg-neutral-700'
+                          className='bg-neutral-700 p-2 h-1/2 my-auto sm:p-4 sm:h-auto'
                           onClick={() => {
                             setPayers((prev) => {
                               const newExpenses = [...prev];

@@ -51,7 +51,7 @@ function BillSplitterResultTable({
   }
 
   return (
-    <Table className='text-lg'>
+    <Table className='sm:text-lg'>
       {contributionResult.err === '' && (
         <TableCaption>
           <p>

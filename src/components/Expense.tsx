@@ -25,7 +25,7 @@ function Expense({
           }}
         />
       </TableCell>
-      <TableCell className='text-right'>
+      <TableCell className='text-right w-1/4'>
         <Input
           className='text-right'
           type='number'
