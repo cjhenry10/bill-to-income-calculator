@@ -4,21 +4,26 @@ function CookiePolicy() {
       <h1>Cookie Policy</h1>
       <h3>Introduction</h3>
       <p>
-        We value your privacy and strive to be transparent about how we collect
-        and use your data. This Cookie Policy explains how we use local storage
-        to enhance your experience on our site.
+        We value your privacy and aim to be transparent about how your data is
+        collected and used.
+      </p>
+      <p>First thing's first: We don't use cookies.</p>
+      <p>
+        This Cookie Policy explains how we use local storage to improve your
+        experience on our site.
       </p>
       <h3>What is Local Storage?</h3>
       <p>
         Local storage is a feature of your web browser that allows us to store
-        small amounts of data on your device. Unlike cookies, data stored in
-        local storage is not sent to the server with each request.
+        small amounts of data in your browser. Local storage data is different
+        than cookies. Unlike cookies, data stored in local storage isn't sent to
+        the server with each request.
       </p>
       <h3>What Data Do We Store?</h3>
       <div>
         <p>
           We use local storage to save the information you enter into forms on
-          our site. This includes, but is not limited to:
+          our site. This includes, but isn't limited to:
         </p>
         <ul>
           <li>Text and number input fields</li>

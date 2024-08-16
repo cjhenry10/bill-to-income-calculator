@@ -43,14 +43,16 @@ function Root() {
               <NavigationMenuItem>
                 <NavigationMenuLink asChild onClick={() => setValue('')}>
                   <Link to='/'>
-                    <Button variant={'outline'}>Salary Estimator</Button>
+                    <Button variant={'outline'}>Salary Converter</Button>
                   </Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
               <NavigationMenuItem>
                 <NavigationMenuLink asChild onClick={() => setValue('')}>
-                  <Link to='/expense-splitter'>
-                    <Button variant={'outline'}>Expense Splitter</Button>
+                  <Link to='/equal-savings-calculator'>
+                    <Button variant={'outline'}>
+                      Equal Savings Calculator
+                    </Button>
                   </Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
@@ -90,7 +92,6 @@ function Root() {
           </li>
         </NavigationMenuList>
       </NavigationMenu>
-      {/* <div className='h-[58px]'></div> */}
       <CookieConsent />
       <main className='max-w-[1200px] mx-auto px-4 md:px-2'>
         <Outlet />

@@ -11,7 +11,6 @@ function IncomeRow({
   amountMonth,
   id,
   preTax,
-  onAmountUpdate,
   onNameChange,
   onPreTaxChange,
   onMonthlyChange,
@@ -22,13 +21,6 @@ function IncomeRow({
   amountMonth: number;
   id: number;
   preTax: boolean;
-  onAmountUpdate?: (
-    name: string,
-    amountYear: number,
-    amountMonth: number,
-    id: number,
-    preTax: boolean
-  ) => void;
   onNameChange: (name: string, id: number) => void;
   onPreTaxChange: (preTax: boolean, id: number) => void;
   onMonthlyChange: (amount: number, id: number) => void;

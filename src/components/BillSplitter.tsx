@@ -18,12 +18,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from './ui/tooltip';
-import {
-  calculatePostTaxIncome,
-  formatCurrency,
-  calculateSharedPayments,
-  round,
-} from '@/lib/utils';
+import { formatCurrency, calculateSharedPayments, round } from '@/lib/utils';
 import { Input } from './ui/input';
 import StateSelector from './StateSelector';
 import BillSplitterResultTable from './BillSplitterResultTable';
@@ -64,7 +59,7 @@ const defaultPayers: Payer[] = [
 ];
 
 const defaultState = 'PA';
-const defaultLocalRate = 1.0;
+const defaultAdditionalRate = 1.0;
 const defaultExpenses = 4000;
 
 function BillSplitter() {
@@ -74,9 +69,9 @@ function BillSplitter() {
     defaultExpenses
   );
   const [state, setState] = useLocalStorage('shared-state', defaultState);
-  const [localRate, setLocalRate] = useLocalStorage(
-    'shared-local-rate',
-    defaultLocalRate
+  const [additionalRate, setAdditionalRate] = useLocalStorage(
+    'shared-additional-rate',
+    defaultAdditionalRate
   );
   const [contributionResult, setContributionResult] = useState({
     payers: [],
@@ -87,9 +82,14 @@ function BillSplitter() {
 
   useEffect(() => {
     setContributionResult(
-      calculateSharedPayments(payers, state, sharedMonthlyExpenses, localRate)
+      calculateSharedPayments(
+        payers,
+        state,
+        sharedMonthlyExpenses,
+        additionalRate
+      )
     );
-  }, [payers, sharedMonthlyExpenses, state, localRate]);
+  }, [payers, sharedMonthlyExpenses, state, additionalRate]);
 
   function handleStateUpdate(state: string) {
     setState(state);
@@ -129,7 +129,7 @@ function BillSplitter() {
           newPayers,
           state,
           sharedMonthlyExpenses,
-          localRate
+          additionalRate
         )
       );
       return newPayers;
@@ -156,7 +156,7 @@ function BillSplitter() {
           newPayers,
           state,
           sharedMonthlyExpenses,
-          localRate
+          additionalRate
         )
       );
       return newPayers;
@@ -179,7 +179,7 @@ function BillSplitter() {
           newPayers,
           state,
           sharedMonthlyExpenses,
-          localRate
+          additionalRate
         )
       );
       return newPayers;
@@ -199,7 +199,7 @@ function BillSplitter() {
           newPayers,
           state,
           sharedMonthlyExpenses,
-          localRate
+          additionalRate
         )
       );
       return newPayers;
@@ -209,7 +209,7 @@ function BillSplitter() {
   return (
     <div className='grid grid-cols-12 gap-4 max-w-[1200px] mx-auto'>
       <div className='col-span-12 flex flex-wrap h-full'>
-        <h1 className='text-3xl mr-4 mt-4'>Expense Splitter</h1>
+        <h1 className='text-3xl mr-4 mt-4'>Equal Savings Calculator</h1>
       </div>
       <div className='col-span-12 md:col-span-12 border-[1px] rounded p-4 bg-card shadow-xl overflow-x-scroll'>
         <div className='col-span-12 flex flex-wrap'>
@@ -238,26 +238,26 @@ function BillSplitter() {
             />
           </div>
           <div className='flex flex-row justify-between md:justify-normal gap-4 m-1 min-w-80 text-sm text-foreground/75'>
-            <label className='my-auto w-40 '>Local Tax (%) : </label>
+            <label className='my-auto'>Additional Tax (%) : </label>
             <Input
-              className='text-right min-w-32'
+              className='text-right w-24'
               type='number'
               step={0.01}
               min={0}
               max={25}
-              value={localRate}
+              value={additionalRate}
               onChange={(e) => {
                 if (e.target.value === '') {
-                  setLocalRate(0);
+                  setAdditionalRate(0);
                   return;
                 }
                 const num = Number(e.target.value);
                 const val = round(num, 2);
                 if (val > 25) {
-                  setLocalRate(25);
+                  setAdditionalRate(25);
                   return;
                 }
-                setLocalRate(val);
+                setAdditionalRate(val);
               }}
             />
           </div>

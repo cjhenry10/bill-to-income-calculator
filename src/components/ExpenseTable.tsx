@@ -9,10 +9,9 @@ import {
   TableBody,
   TableCell,
   TableFooter,
-  TableCaption,
 } from './ui/table';
 import { Button } from './ui/button';
-import { ChevronDown, Delete, EllipsisVertical, Plus } from 'lucide-react';
+import { Delete, EllipsisVertical, Plus } from 'lucide-react';
 import {
   Tooltip,
   TooltipContent,
@@ -47,25 +46,25 @@ const defaultExpenses = [
 ];
 
 const defaultState = 'PA';
-const defaultLocalRate = 1.0;
+const defaultAdditionalRate = 1.0;
 
 function ExpenseTable() {
   const [expenses, setExpenses] = useLocalStorage('expenses', defaultExpenses);
   const [state, setState] = useLocalStorage('state', defaultState);
   const total = expenses.reduce((acc, expense) => acc + expense.amount, 0);
-  const [localRate, setLocalRate] = useLocalStorage(
-    'local-rate',
-    defaultLocalRate
+  const [additionalRate, setAdditionalRate] = useLocalStorage(
+    'additional-rate',
+    defaultAdditionalRate
   );
   const [salaryEstimate, setSalaryEstimate] = useState(
-    calculateYearlyIncomeNeededPretax(total * 12, state, localRate / 100)
+    calculateYearlyIncomeNeededPretax(total * 12, state, additionalRate / 100)
   );
 
   useEffect(() => {
     setSalaryEstimate(
-      calculateYearlyIncomeNeededPretax(total * 12, state, localRate / 100)
+      calculateYearlyIncomeNeededPretax(total * 12, state, additionalRate / 100)
     );
-  }, [state, total, localRate]);
+  }, [state, total, additionalRate]);
 
   function handleNameChange(name: string, id: number) {
     setExpenses((prevExpenses) => {
@@ -102,7 +101,9 @@ function ExpenseTable() {
     <>
       <div className='grid grid-cols-12 gap-4 max-w-[1200px] mx-auto'>
         <div className='col-span-12 flex flex-wrap h-full'>
-          <h1 className='text-3xl mr-4 mt-4'>Salary Estimator</h1>
+          <h1 className='text-3xl mr-4 mt-4'>
+            Monthly Expenses to Salary Converter
+          </h1>
         </div>
         <div className='bg-card col-span-12 md:col-span-7 border-[1px] rounded p-4 h-full shadow-xl'>
           <div className='flex flex-wrap justify-between'>
@@ -117,7 +118,7 @@ function ExpenseTable() {
             </div>
             <div className='flex flex-col mb-4'>
               <label className='my-auto ml-1 mb-1 text-sm text-foreground/75'>
-                Local Tax (%) :{' '}
+                Additional Tax (%) :{' '}
               </label>
               <Input
                 className='text-right min-w-32'
@@ -125,19 +126,19 @@ function ExpenseTable() {
                 step={0.01}
                 min={0}
                 max={25}
-                value={localRate}
+                value={additionalRate}
                 onChange={(e) => {
                   if (e.target.value === '') {
-                    setLocalRate(0);
+                    setAdditionalRate(0);
                     return;
                   }
                   const num = Number(e.target.value);
                   const val = round(num, 2);
                   if (val > 25) {
-                    setLocalRate(25);
+                    setAdditionalRate(25);
                     return;
                   }
-                  setLocalRate(val);
+                  setAdditionalRate(val);
                 }}
               />
             </div>
@@ -237,7 +238,7 @@ function ExpenseTable() {
                   },
                 ]);
                 setState('');
-                setLocalRate(0);
+                setAdditionalRate(0);
               }}
             >
               Reset
@@ -261,7 +262,7 @@ function ExpenseTable() {
                       onClick={() => {
                         setExpenses(defaultExpenses);
                         setState(defaultState);
-                        setLocalRate(defaultLocalRate);
+                        setAdditionalRate(defaultAdditionalRate);
                       }}
                     >
                       Show Example

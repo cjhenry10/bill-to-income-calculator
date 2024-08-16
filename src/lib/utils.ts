@@ -225,12 +225,12 @@ const medicareRate = 0.0145;
 const medicareMax = 200000;
 const medicareAdditionalRate = 0.009;
 const standardDeduction = 14600;
-const defaultLocalRate = 0.01;
+// const defaultAdditionalRate = 0.01;
 
 export function calculateYearlyIncomeNeededPretax(
   desiredPostTaxIncome: number,
   state: string,
-  localRate: number
+  additionalRate: number
 ) {
   let estimatedPreTaxIncome = desiredPostTaxIncome;
   let calculatedPostTaxIncome = 0;
@@ -278,8 +278,8 @@ export function calculateYearlyIncomeNeededPretax(
       stateTax = calculateStateTax(taxableIncome, state)!;
     }
     const ficaTax = calculateFicaTax(taxableIncome);
-    const localTax = calculateLocalTax(taxableIncome, localRate);
-    const totalTax = federalTax + stateTax + ficaTax + localTax;
+    const additionalTax = calculateAdditionalTax(taxableIncome, additionalRate);
+    const totalTax = federalTax + stateTax + ficaTax + additionalTax;
     calculatedPostTaxIncome = estimatedPreTaxIncome - totalTax;
   }
   return estimatedPreTaxIncome;
@@ -383,20 +383,20 @@ function calculateFicaTax(income: number) {
   return ssTax + medicareTax + medicareAdditionalTax;
 }
 
-function calculateLocalTax(income: number, localRate: number) {
-  return income * localRate;
+function calculateAdditionalTax(income: number, additionalRate: number) {
+  return income * additionalRate;
 }
 
 export function calculatePostTaxIncome(
   salary: number,
   state: string,
-  localRate: number
+  additionalRate: number
 ) {
   const federalTax = calculateFederalTax(salary);
   const stateTax = calculateStateTax(salary, state)!;
   const ficaTax = calculateFicaTax(salary);
-  const localTax = calculateLocalTax(salary, localRate / 100);
-  return salary - federalTax - stateTax - ficaTax - localTax;
+  const additionalTax = calculateAdditionalTax(salary, additionalRate / 100);
+  return salary - federalTax - stateTax - ficaTax - additionalTax;
 }
 
 export function formatCurrency(number: number) {
@@ -410,7 +410,7 @@ export function calculateSharedPayments(
   payers: any,
   state: string,
   sharedMonthlyExpenses: number,
-  localRate: number
+  additionalRate: number
 ) {
   if (payers.length === 0) {
     return {
@@ -437,9 +437,13 @@ export function calculateSharedPayments(
     if (payer.preTax) {
       return {
         name: payer.name,
-        amountYear: calculatePostTaxIncome(payer.amountYear, state, localRate),
+        amountYear: calculatePostTaxIncome(
+          payer.amountYear,
+          state,
+          additionalRate
+        ),
         amountMonth:
-          calculatePostTaxIncome(payer.amountYear, state, localRate) / 12,
+          calculatePostTaxIncome(payer.amountYear, state, additionalRate) / 12,
         id: payer.id,
         preTax: payer.preTax,
       };

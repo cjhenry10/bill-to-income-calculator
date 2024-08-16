@@ -19,7 +19,7 @@ const router = createBrowserRouter([
         element: <App />,
       },
       {
-        path: 'expense-splitter',
+        path: 'equal-savings-calculator',
         element: <BillSplitter />,
       },
       {
