@@ -1,4 +1,5 @@
 # Income Calculators
+https://income-calculators.showcase.run/
 
 This application currently has two tools that can:
 
@@ -9,5 +10,5 @@ The project is built with React.js and TypeScript. For components and styling I 
 
 ## Credits
 
-Copy editing done by Morgan Dahrens
+Copy editing and QA done by Morgan Dahrens
 https://www.linkedin.com/in/morgandahrens/
