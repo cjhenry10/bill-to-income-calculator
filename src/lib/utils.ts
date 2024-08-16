@@ -1,6 +1,7 @@
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import messages from './messages';
+import { equal } from 'assert';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -433,6 +434,10 @@ export function calculateSharedPayments(
       err: messages.noData,
     };
   }
+
+  // remove payers contributing $0
+  payers = payers.filter((payer: any) => payer.amountYear > 0);
+
   const payersAfterTaxes = payers.map((payer: any) => {
     if (payer.preTax) {
       return {
@@ -502,6 +507,7 @@ export function calculateSharedPayments(
   // handle case where lowest earner does not earn the equal leftover value
   // so remove them from the calculation and recalculate the average
   const lowestEarnerLeft = Math.min(...afterTaxMonthlyEarnings);
+
   if (equalLeftoverValue > lowestEarnerLeft) {
     const tempArray = leftoverArray.filter(
       (val: number) => val !== lowestEarnerLeft
