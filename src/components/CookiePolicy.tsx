@@ -7,7 +7,6 @@ function CookiePolicy() {
         We value your privacy and aim to be transparent about how your data is
         collected and used.
       </p>
-      <p>First thing's first: We don't use cookies.</p>
       <p>
         This Cookie Policy explains how we use local storage to improve your
         experience on our site.
